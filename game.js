@@ -164,7 +164,7 @@ let S={
   eq:[],combo:null,items:{potion:3,ether:2},stats:{dealt:0,crits:0,spells:0,bestHit:0},
   battleFlags:{tookDamage:false,wasLowHp:false},
   atbT:null,lineIdx:0,pStatus:{},eStatus:{},
-  hand:[],pendingCard:null,dice:[1,1,1,1,1],held:[false,false,false,false,false],rollsLeft:3,rolled:false,
+  hand:[],pendingCard:null,dice:[1,1,1,1,1],held:[false,false,false,false,false],rollsLeft:3,rolled:false,spinning:false,
   streak:0,tauntFired:new Set(),maxWaveCleared:0,muted:false,difficulty:'normal',
   lifetime:{dealt:0,crits:0,wins:0,bestHit:0,weakElements:[]},achievements:{},codexViewed:false,
 };
@@ -206,6 +206,184 @@ const WAVES=[
   ['seph'],
   ['echo'],
 ];
+
+// ── PIXEL-ART SPRITES — hand-authored grids rendered to a low-res canvas
+// and stretched with image-rendering:pixelated, replacing the old flat
+// CSS-box body parts with actual shaded pixel art. ──
+function rowFrom(width,segs,fill='.'){
+  const a=new Array(width).fill(fill);
+  segs.forEach(([s,e,ch])=>{for(let i=s;i<=e;i++)a[i]=ch;});
+  return a;
+}
+function buildRows(width,specs){return specs.map(segs=>rowFrom(width,segs));}
+
+const SPRITES={
+  player:{pal:{R:'#2a8a62',S:'#eaf8f0',E:'#123322',W:'#8fe0c0',B:'#a8e6cf',D:'#5ec9a0',G:'#c8f0df'},
+    rows:buildRows(16,[
+      [],
+      [[6,9,'R']],
+      [[5,10,'R']],
+      [[5,5,'R'],[6,9,'S'],[10,10,'R']],
+      [[5,5,'R'],[6,9,'S'],[10,10,'R'],[7,7,'E'],[8,8,'E']],
+      [[6,9,'S']],
+      [[2,3,'W'],[6,9,'B'],[12,13,'W']],
+      [[1,4,'W'],[5,10,'B'],[11,14,'W']],
+      [[1,4,'W'],[5,10,'B'],[11,14,'W']],
+      [[2,3,'W'],[5,5,'S'],[6,9,'D'],[10,10,'S'],[11,12,'W']],
+      [[5,10,'D']],
+      [[4,11,'B']],
+      [[4,11,'B']],
+      [[4,11,'D']],
+      [[5,10,'B']],
+      [[5,10,'D']],
+      [[6,9,'B']],
+      [],
+      [[7,8,'G']],
+      [[7,8,'G']],
+    ])},
+  trooper:{pal:{H:'#5a7aaa',V:'#7ecfff',B:'#4a6a9a',L:'#1a3a6a',R:'#2a4a7a'},
+    rows:buildRows(16,[
+      [[6,9,'H']],
+      [[5,10,'H']],
+      [[5,10,'H'],[6,9,'V']],
+      [[6,9,'H']],
+      [[5,10,'B']],
+      [[5,10,'B'],[11,12,'R']],
+      [[5,10,'B'],[12,13,'R']],
+      [[5,10,'B'],[13,14,'R']],
+      [[5,10,'B']],
+      [[5,10,'B']],
+      [[5,10,'L']],
+      [[5,7,'L'],[9,10,'L']],
+      [[5,7,'L'],[9,10,'L']],
+      [[5,7,'L'],[9,10,'L']],
+      [[5,7,'L'],[9,10,'L']],
+      [[5,7,'L'],[9,10,'L']],
+      [[5,7,'L'],[9,10,'L']],
+      [[5,7,'L'],[9,10,'L']],
+    ])},
+  mech:{pal:{C:'#3a3a0a',E:'#ff4f1f',A:'#2a2a0a',Ac:'#ff8c5a'},
+    rows:buildRows(16,[
+      [[6,9,'E']],
+      [[5,10,'C']],
+      [[5,10,'C'],[6,9,'Ac']],
+      [[4,11,'C']],
+      [[2,3,'A'],[4,11,'C'],[12,13,'A']],
+      [[2,3,'A'],[4,11,'C'],[12,13,'A']],
+      [[2,3,'A'],[4,11,'C'],[12,13,'A'],[7,8,'Ac']],
+      [[2,3,'A'],[4,11,'C'],[12,13,'A']],
+      [[4,11,'C']],
+      [[4,11,'C']],
+      [[5,10,'C']],
+      [[5,10,'C']],
+      [[5,7,'A'],[9,10,'A']],
+      [[5,7,'A'],[9,10,'A']],
+      [[5,7,'A'],[9,10,'A']],
+      [[5,7,'A'],[9,10,'A']],
+      [[5,7,'A'],[9,10,'A']],
+      [[5,7,'A'],[9,10,'A']],
+      [],
+      [],
+      [],
+    ])},
+  beast:{pal:{F:'#2a0a0a',M:'#3a1a1a',Ey:'#ff4f1f',T:'#1a0a0a'},
+    rows:buildRows(16,[
+      [[5,10,'M']],
+      [[4,11,'M'],[5,5,'Ey'],[10,10,'Ey']],
+      [[4,11,'M']],
+      [[3,12,'F']],
+      [[2,13,'F']],
+      [[1,14,'F'],[14,15,'T']],
+      [[1,14,'F'],[14,15,'T']],
+      [[1,14,'F']],
+      [[2,13,'F']],
+      [[2,4,'T'],[6,9,'F'],[11,13,'T']],
+      [[2,4,'T'],[11,13,'T']],
+      [[2,4,'T'],[11,13,'T']],
+      [[2,4,'T'],[11,13,'T']],
+      [],
+    ])},
+  alien:{pal:{P:'#3a1a5a',Pl:'#2a0a4a',Ey:'#c05aff',Te:'#a03aff'},
+    rows:buildRows(16,[
+      [[6,9,'P']],
+      [[5,10,'P'],[7,7,'Ey'],[8,8,'Ey']],
+      [[5,10,'P']],
+      [[6,9,'P']],
+      [[5,10,'Pl']],
+      [[4,11,'Pl'],[2,3,'Te'],[12,13,'Te']],
+      [[4,11,'Pl'],[1,3,'Te'],[12,14,'Te']],
+      [[4,11,'Pl'],[2,3,'Te'],[12,13,'Te']],
+      [[5,10,'Pl'],[3,4,'Te'],[11,12,'Te']],
+      [[5,10,'Pl']],
+      [[6,9,'Pl']],
+      [[6,9,'Pl']],
+      [[6,9,'Pl']],
+      [[6,9,'Pl']],
+      [[6,9,'Pl']],
+      [],
+      [],
+      [],
+      [],
+    ])},
+  boss:{pal:{Bo:'#4a1a0a',Ey:'#ff4f1f',Sh:'#3a0a00',Ac:'#ff8c5a'},
+    rows:buildRows(16,[
+      [[6,9,'Bo']],
+      [[5,10,'Bo'],[6,9,'Ey']],
+      [[5,10,'Bo']],
+      [[4,11,'Bo']],
+      [[2,3,'Sh'],[4,11,'Bo'],[12,13,'Sh']],
+      [[1,3,'Sh'],[4,11,'Bo'],[12,14,'Sh']],
+      [[1,3,'Sh'],[4,11,'Bo'],[12,14,'Sh']],
+      [[2,3,'Sh'],[4,11,'Bo'],[12,13,'Sh']],
+      [[4,11,'Bo']],
+      [[4,11,'Bo']],
+      [[4,11,'Bo']],
+      [[5,10,'Bo']],
+      [[5,10,'Bo']],
+      [[5,7,'Sh'],[9,10,'Sh']],
+      [[5,7,'Sh'],[9,10,'Sh']],
+      [[5,7,'Sh'],[9,10,'Sh']],
+      [[5,7,'Sh'],[9,10,'Sh']],
+      [[5,7,'Sh'],[9,10,'Sh']],
+      [[5,7,'Sh'],[9,10,'Sh']],
+    ])},
+  seph:{pal:{Co:'#1a1a2e',Sk:'#e0e0f0',Ha:'#9090bb',Wg:'#242444',Bl:'#a0c0ff'},
+    rows:buildRows(16,[
+      [[7,8,'Sk']],
+      [[6,9,'Sk']],
+      [[6,9,'Sk']],
+      [[6,9,'Sk']],
+      [[7,8,'Ha']],
+      [[6,9,'Co']],
+      [[5,10,'Co'],[12,15,'Wg']],
+      [[5,10,'Co'],[11,15,'Wg']],
+      [[5,10,'Co'],[11,14,'Wg']],
+      [[5,10,'Co'],[12,14,'Wg']],
+      [[5,10,'Co'],[13,14,'Wg']],
+      [[5,10,'Co']],
+      [[5,10,'Co'],[13,13,'Bl']],
+      [[5,10,'Co'],[13,13,'Bl']],
+      [[5,10,'Co'],[13,13,'Bl']],
+      [[5,10,'Co'],[13,13,'Bl']],
+      [[5,10,'Co'],[13,13,'Bl']],
+      [[5,10,'Co']],
+      [[5,10,'Co']],
+      [[5,10,'Co']],
+      [[5,10,'Co']],
+    ])},
+};
+function renderPixelSprite(canvas,key){
+  const sp=SPRITES[key];if(!sp||!canvas)return;
+  const rows=sp.rows,w=rows[0].length,h=rows.length;
+  canvas.width=w;canvas.height=h;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,w,h);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const ch=rows[y][x];if(ch==='.')continue;
+    ctx.fillStyle=sp.pal[ch]||'#fff';
+    ctx.fillRect(x,y,1,1);
+  }
+}
 
 // ── AMBIENT PARTICLES ──
 (function initParticles(){
@@ -501,15 +679,11 @@ function buildEnemySprite(spr){
   const sizes={trooper:{w:48,h:64},mech:{w:52,h:68},beast:{w:60,h:54},alien:{w:60,h:70},boss:{w:68,h:80},seph:{w:70,h:90}};
   const sz=sizes[spr]||{w:60,h:70};
   c.className=`spr-e ${cls}`;c.style.width=sz.w+'px';c.style.height=sz.h+'px';c.innerHTML='';
-  const parts={
-    trooper:['et-body','et-head','et-visor','et-rifle','et-legs'],
-    mech:['em-core','em-eye','em-scan','em-arm em-armL','em-arm em-armR','em-leg em-legL','em-leg em-legR','em-vent'],
-    beast:['eb-body','eb-head','eb-eye','eb-eye eb-eye2','eb-tail','eb-leg eb-legA','eb-leg eb-legB','eb-leg eb-legC','eb-leg eb-legD'],
-    alien:['ea-body','ea-head','ea-eye','ea-tent ea-tentL','ea-tent ea-tentR','ea-tent ea-tentL2','ea-tent ea-tentR2'],
-    boss:['eb2-aura','eb2-body','eb2-head','eb2-eye','eb2-shoulder eb2-sL','eb2-shoulder eb2-sR','eb2-arm eb2-armL','eb2-arm eb2-armR'],
-    seph:['es-aura','es-coat','es-body','es-wing','es-head','es-hair','es-blade'],
-  }[spr]||[];
-  parts.forEach(p=>{const d=document.createElement('div');d.className=p;c.appendChild(d);});
+  if(spr==='boss'||spr==='seph'){
+    const aura=document.createElement('div');aura.className=spr==='boss'?'eb2-aura':'es-aura';c.appendChild(aura);
+  }
+  const cv=document.createElement('canvas');cv.className='pix-cv';c.appendChild(cv);
+  renderPixelSprite(cv,spr);
 }
 
 // ── SEGMENTED PIP BARS ──
@@ -644,7 +818,7 @@ function selectCard(card){
   if(!S.pTurn||S.over)return;
   if(card.mp>0&&S.player.mp<card.mp)return;
   if(card.kind==='buff'||card.kind==='limit'){resolveCard(card,1,'');return;}
-  S.pendingCard=card;S.dice=[1,1,1,1,1];S.held=[false,false,false,false,false];S.rollsLeft=3;S.rolled=false;
+  S.pendingCard=card;S.dice=[1,1,1,1,1];S.held=[false,false,false,false,false];S.rollsLeft=3;S.rolled=false;S.spinning=false;
   drawDiceUI(card);
 }
 
@@ -674,38 +848,53 @@ function drawDiceUI(card){
   const r=document.getElementById('arow');r.innerHTML='';
   const wrap=document.createElement('div');wrap.className='dice-panel';
   const info=document.createElement('div');info.className='dice-info';
-  const sc=S.rolled?scoreDice(S.dice):{mult:1,label:'ROLL TO BEGIN'};
+  const spinning=!!S.spinning;
+  const sc=S.rolled&&!spinning?scoreDice(S.dice):{mult:1,label:spinning?'ROLLING...':'ROLL TO BEGIN'};
   const momentum=1+Math.min(S.streak,5)*0.03;
   const streakTag=S.streak>0?` <span style="color:var(--thunder)">🔥×${momentum.toFixed(2)}</span>`:'';
   info.innerHTML=`<span>${card.icon} ${card.name} — roll for power${streakTag}</span><span class="dice-score">${sc.label} ×${sc.mult.toFixed(2)}</span>`;
   wrap.appendChild(info);
   const row=document.createElement('div');row.className='dice-row';
   S.dice.forEach((v,i)=>{
-    const d=document.createElement('div');d.className='die'+(S.held[i]?' held':'');
-    d.innerHTML=S.rolled?pipHTML(v):'<span class="die-q">?</span>';
-    if(S.rolled&&S.rollsLeft>0)d.onclick=()=>{S.held[i]=!S.held[i];drawDiceUI(card);};
+    const spin=spinning&&!S.held[i];
+    const d=document.createElement('div');d.className='die'+(S.held[i]?' held':'')+(spin?' rolling':'');
+    d.innerHTML=(S.rolled||spinning)?pipHTML(v):'<span class="die-q">?</span>';
+    if(S.rolled&&!spinning&&S.rollsLeft>0)d.onclick=()=>{S.held[i]=!S.held[i];drawDiceUI(card);};
     row.appendChild(d);
   });
   wrap.appendChild(row);
   const btns=document.createElement('div');btns.className='dice-btns';
   const rollBtn=document.createElement('button');rollBtn.className='act act-mag';
-  rollBtn.textContent=S.rollsLeft>0?`🎲 ROLL (${S.rollsLeft} left)`:'NO ROLLS LEFT';
-  rollBtn.disabled=S.rollsLeft<=0;rollBtn.onclick=()=>doRoll(card);
+  rollBtn.textContent=spinning?'🎲 ROLLING...':S.rollsLeft>0?`🎲 ROLL (${S.rollsLeft} left)`:'NO ROLLS LEFT';
+  rollBtn.disabled=spinning||S.rollsLeft<=0;rollBtn.onclick=()=>doRoll(card);
   const confirmBtn=document.createElement('button');confirmBtn.className='act act-atk';
-  confirmBtn.textContent='✓ LOCK IN';confirmBtn.disabled=!S.rolled;
+  confirmBtn.textContent='✓ LOCK IN';confirmBtn.disabled=spinning||!S.rolled;
   confirmBtn.onclick=()=>{const s=scoreDice(S.dice);resolveCard(card,s.mult,s.label);};
   const backBtn=document.createElement('button');backBtn.className='act act-itm';
+  backBtn.disabled=spinning;
   backBtn.textContent='↩ CHOOSE ANOTHER';backBtn.onclick=renderHand;
   btns.appendChild(rollBtn);btns.appendChild(confirmBtn);btns.appendChild(backBtn);
   wrap.appendChild(btns);
   r.appendChild(wrap);
 }
 function doRoll(card){
-  if(S.rollsLeft<=0)return;
-  S.rollsLeft--;S.rolled=true;
-  S.dice=S.dice.map((v,i)=>S.held[i]?v:1+Math.floor(Math.random()*6));
+  if(S.rollsLeft<=0||S.spinning)return;
+  S.rollsLeft--;
   playHit();
-  drawDiceUI(card);
+  const finalDice=S.dice.map((v,i)=>S.held[i]?v:1+Math.floor(Math.random()*6));
+  S.spinning=true;
+  let ticks=0;
+  const tumble=setInterval(()=>{
+    ticks++;
+    S.dice=S.dice.map((v,i)=>S.held[i]?v:1+Math.floor(Math.random()*6));
+    drawDiceUI(card);
+    if(ticks>=7){
+      clearInterval(tumble);
+      S.dice=finalDice;S.rolled=true;S.spinning=false;
+      playHit();
+      drawDiceUI(card);
+    }
+  },65);
 }
 
 // ── CARD RESOLUTION ──
@@ -1056,6 +1245,7 @@ function renderStats(){
 function showStats(){renderStats();showSc('sc-stats');}
 
 // ── INIT ──
+renderPixelSprite(document.getElementById('pix-player'),'player');
 loadProgress();
 if(S.maxWaveCleared>0){
   const bw=document.getElementById('best-wave');

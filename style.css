@@ -290,7 +290,7 @@ body{background:var(--ink);color:var(--txt);font-family:'Share Tech Mono',monosp
 .c-turn-ind.active{opacity:1;animation:turnFlash .5s ease-in-out infinite}
 @keyframes turnFlash{0%,100%{opacity:0.4;text-shadow:0 0 2px var(--thunder)}50%{opacity:1;text-shadow:0 0 8px var(--thunder)}}
 
-/* ── PLAYER SPRITE (Noom Wolliw) — PIXEL ART ── */
+/* ── PLAYER SPRITE (Noom Wolliw) — PIXEL ART CANVAS ── */
 .spr-p{position:relative;width:64px;height:80px;image-rendering:pixelated}
 .spr-p .p-glow{
   position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
@@ -299,153 +299,30 @@ body{background:var(--ink);color:var(--txt);font-family:'Share Tech Mono',monosp
   filter:blur(3px);animation:auraPulse 3s ease-in-out infinite;
 }
 @keyframes auraPulse{0%,100%{opacity:0.6;transform:translateX(-50%) scale(0.92)}50%{opacity:1;transform:translateX(-50%) scale(1.08)}}
-.spr-p .p-wL,.spr-p .p-wR{position:absolute;top:12px;width:16px;height:24px;
-  background:#5ec9a0;border:1px solid #3aab82;
-  animation:wFlap 1.2s step(2,end) infinite}
-.spr-p .p-wL{right:28px;transform-origin:right center}
-.spr-p .p-wR{left:28px;animation-delay:0.1s;transform-origin:left center}
-@keyframes wFlap{0%,100%{transform:skewY(-6px)}50%{transform:skewY(6px)}}
-.spr-p .p-body{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
-  width:14px;height:20px;background:#a8e6cf;border:1px solid #5ec9a0}
-.spr-p .p-head{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
-  width:12px;height:12px;background:#c8f0df;border:1px solid #5ec9a0}
-.spr-p .p-hair{position:absolute;bottom:46px;left:50%;transform:translateX(-50%);
-  width:14px;height:6px;background:#3aab82;border:1px solid #2a8a62}
-.spr-p .p-orb{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
-  width:6px;height:6px;background:#5ec9a0;border:1px solid #3aab82;
-  animation:orbPop 1.6s step(2,end) infinite}
-@keyframes orbPop{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.3)}}
-.spr-p .p-arm{position:absolute;bottom:18px;width:4px;height:8px;background:#a8e6cf;border:1px solid #5ec9a0}
-.spr-p .p-armL{right:24px}
-.spr-p .p-armR{left:24px}
 
-/* ── ENEMY SPRITES — PIXEL ART ── */
+/* ── ENEMY SPRITES — PIXEL ART CANVAS ── */
 .spr-e{position:relative;image-rendering:pixelated}
+.pix-cv{display:block;width:100%;height:100%;image-rendering:pixelated;position:relative;z-index:1}
 
-/* Trooper — soldier with rifle */
 .se-trooper{width:48px;height:64px}
-.se-trooper .et-body{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
-  width:12px;height:24px;background:#4a6a9a;border:1px solid #1a3a6a}
-.se-trooper .et-head{position:absolute;bottom:38px;left:50%;transform:translateX(-50%);
-  width:10px;height:10px;background:#5a7aaa;border:1px solid #1a3a6a}
-.se-trooper .et-visor{position:absolute;bottom:39px;left:50%;transform:translateX(-50%);
-  width:8px;height:4px;background:#7ecfff;border:1px solid #5aafdd}
-.se-trooper .et-rifle{position:absolute;bottom:20px;right:12px;
-  width:2px;height:20px;background:#2a4a7a;border:1px solid #1a2a5a;transform:rotate(-30deg);transform-origin:top}
-.se-trooper .et-legs{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-  width:10px;height:14px;background:#1a3a6a;border:1px solid #0a1a4a}
-
-/* Mech — blocky robot */
 .se-mech{width:52px;height:68px}
-.se-mech .em-core{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
-  width:18px;height:28px;background:#3a3a0a;border:1px solid #ff4f1f}
-.se-mech .em-eye{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
-  width:12px;height:6px;background:#ff4f1f;
-  animation:mechEye .8s step(2,end) infinite}
-@keyframes mechEye{0%,100%{opacity:1}50%{opacity:0.3}}
-.se-mech .em-scan{position:absolute;bottom:31px;left:50%;transform:translateX(-50%);
-  width:14px;height:2px;border:1px solid #ff8c5a;opacity:0.6}
-.se-mech .em-arm{position:absolute;bottom:20px;width:6px;height:18px;
-  background:#2a2a0a;border:1px solid #1a1a0a}
-.se-mech .em-armL{right:20px}.se-mech .em-armR{left:20px}
-.se-mech .em-leg{position:absolute;bottom:0;width:4px;height:14px;
-  background:#1a1a0a;border:1px solid #0a0a0a}
-.se-mech .em-legL{right:16px}.se-mech .em-legR{left:16px}
-.se-mech .em-vent{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
-  width:10px;height:2px;background:repeating-linear-gradient(90deg,#ff8c5a 0px,#ff8c5a 2px,transparent 2px,transparent 3px);
-  opacity:0.8}
-
-/* Beast — crouched animal */
 .se-beast{width:60px;height:54px}
-.se-beast .eb-body{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
-  width:28px;height:20px;background:#2a0a0a;border:1px solid #ff4f1f}
-.se-beast .eb-head{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
-  width:18px;height:16px;background:#3a1a1a;border:1px solid #ff8c5a}
-.se-beast .eb-eye{position:absolute;top:2px;left:35%;
-  width:6px;height:6px;background:#ff4f1f;border:1px solid #ff0000}
-.se-beast .eb-eye2{left:65%}
-.se-beast .eb-tail{position:absolute;bottom:12px;right:26px;
-  width:3px;height:22px;background:#1a0a0a;border:1px solid #0a0a0a;
-  transform:rotate(-35deg);transform-origin:top center;
-  animation:tailWag .5s step(2,end) infinite}
-@keyframes tailWag{0%,100%{transform:rotate(-35deg)}50%{transform:rotate(-15deg)}}
-.se-beast .eb-leg{position:absolute;bottom:0;width:3px;height:10px;
-  background:#1a0a0a;border:1px solid #0a0a0a}
-.se-beast .eb-legA{left:12px}.se-beast .eb-legB{left:18px}
-.se-beast .eb-legC{right:18px}.se-beast .eb-legD{right:12px}
-
-/* Alien — tentacle creature */
 .se-alien{width:60px;height:70px}
-.se-alien .ea-body{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
-  width:20px;height:24px;background:#2a0a4a;border:1px solid #c05aff}
-.se-alien .ea-head{position:absolute;bottom:38px;left:50%;transform:translateX(-50%);
-  width:18px;height:18px;background:#3a1a5a;border:1px solid #c05aff}
-.se-alien .ea-eye{position:absolute;top:4px;left:50%;transform:translateX(-50%);
-  width:4px;height:4px;background:#c05aff;border:1px solid #a03aff}
-.se-alien .ea-tent{position:absolute;bottom:36px;width:2px;
-  background:#c05aff;border:1px solid #a03aff;transform-origin:top center;
-  animation:tentWave 1s step(2,end) infinite}
-.se-alien .ea-tentL{right:20px;height:16px}
-.se-alien .ea-tentR{left:20px;height:16px;animation-delay:0.2s}
-.se-alien .ea-tentL2{right:26px;height:12px;animation-delay:0.4s}
-.se-alien .ea-tentR2{left:26px;height:12px;animation-delay:0.6s}
-@keyframes tentWave{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}
-
-/* Boss — armored demon */
 .se-boss{width:68px;height:80px}
-.se-boss .eb2-body{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
-  width:26px;height:32px;background:#4a1a0a;border:1px solid #ff4f1f}
-.se-boss .eb2-head{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
-  width:20px;height:14px;background:#4a1a0a;border:1px solid #ff8c5a}
-.se-boss .eb2-eye{position:absolute;top:4px;left:50%;transform:translateX(-50%);
-  width:12px;height:4px;background:#ff4f1f;
-  animation:bossEye 0.8s step(2,end) infinite}
-@keyframes bossEye{0%,100%{opacity:1}50%{opacity:0.3}}
-.se-boss .eb2-shoulder{position:absolute;bottom:28px;width:10px;height:8px;
-  background:#3a0a00;border:1px solid #ff8c5a}
-.se-boss .eb2-sL{right:32px}.se-boss .eb2-sR{left:32px}
-.se-boss .eb2-arm{position:absolute;bottom:16px;width:6px;height:18px;
-  background:#2a0a00;border:1px solid #ff8c5a}
-.se-boss .eb2-armL{right:34px}.se-boss .eb2-armR{left:34px}
+.se-seph{width:70px;height:90px}
+
 .se-boss .eb2-aura{
   position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
   width:92px;height:92px;border-radius:50%;
   background:radial-gradient(circle,rgba(255,79,31,0.35) 0%,transparent 70%);
   filter:blur(4px);animation:auraPulse 2.2s ease-in-out infinite;
 }
-
-/* Ashveil — pale one-winged angel */
-.se-seph{width:70px;height:90px}
-.se-seph .es-coat{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-  width:18px;height:54px;background:#1a1a2e;border:1px solid #5a5a8a}
-.se-seph .es-body{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
-  width:14px;height:18px;background:#3a3a4a;border:1px solid #5a5a8a}
-.se-seph .es-head{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);
-  width:12px;height:12px;background:#e0e0f0;border:1px solid #8a8aaa}
-.se-seph .es-hair{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
-  width:3px;height:40px;background:#9090bb;border:1px solid #7070aa}
-.se-seph .es-wing{position:absolute;bottom:30px;right:18px;width:24px;height:32px;
-  background:#1a1a2e;border:1px solid #5a5a8a;
-  clip-path:polygon(100% 0,0 100%,100% 100%);
-  animation:wingDrift 4s step(2,end) infinite;transform-origin:100% 0}
-@keyframes wingDrift{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
-.se-seph .es-blade{position:absolute;bottom:4px;right:2px;width:2px;height:48px;
-  background:#a0c0ff;border:1px solid #6080dd;transform:rotate(-10deg);transform-origin:bottom center}
 .se-seph .es-aura{
   position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);
   width:100px;height:124px;border-radius:50%;
   background:radial-gradient(circle,rgba(160,140,255,0.32) 0%,transparent 70%);
   filter:blur(5px);animation:auraPulse 2.6s ease-in-out infinite;
 }
-
-/* ── SPRITE DEPTH — beveled shading on every box-art part, for less-flat pixel art ── */
-.spr-p > div, .spr-e > div{
-  box-shadow:inset -2px -3px 3px rgba(0,0,0,0.35),
-             inset 2px 2px 2px rgba(255,255,255,0.22),
-             1px 2px 3px rgba(0,0,0,0.35);
-}
-/* ...except the soft glow/aura circles, which should stay a clean blurred radial */
-.spr-p .p-glow,.se-boss .eb2-aura,.se-seph .es-aura{box-shadow:none}
 
 /* ── CHARACTER ANIMATIONS ── */
 .cw.attack-r{animation:atkR .4s cubic-bezier(.4,0,.2,1)}
@@ -680,6 +557,14 @@ body{background:var(--ink);color:var(--txt);font-family:'Share Tech Mono',monosp
 .die.held{border-color:var(--thunder);background:linear-gradient(160deg,#fff8dc,#ffe58a);
   box-shadow:0 3px 0 #c9a227,0 0 12px var(--thunder),0 6px 10px rgba(0,0,0,0.4)}
 .die:not(.held):hover{transform:translateY(-4px);box-shadow:0 7px 0 #aeb5bb,0 10px 14px rgba(0,0,0,0.5)}
+.die.rolling{cursor:default;animation:diceTumble .26s ease-in-out infinite}
+@keyframes diceTumble{
+  0%{transform:rotate(0deg) scale(1)}
+  25%{transform:rotate(-14deg) scale(0.94) translateY(-3px)}
+  50%{transform:rotate(10deg) scale(1.05)}
+  75%{transform:rotate(-6deg) scale(0.96) translateY(2px)}
+  100%{transform:rotate(0deg) scale(1)}
+}
 .die-q{font-size:1.3rem;font-weight:900;color:#8a8f96}
 .pip-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
   width:30px;height:30px;gap:2px}
