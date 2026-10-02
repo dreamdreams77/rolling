@@ -1102,6 +1102,49 @@ function toggleLore(){
   l.classList.add('show');
 }
 
+// ── SECRET: a binary transmission, decoded ──
+// Type "iloveyou" anywhere in the game to find it.
+function showLoveEgg(){
+  if(document.getElementById('love-egg'))return;
+  const ov=document.createElement('div');ov.id='love-egg';ov.className='love-egg';
+  ov.innerHTML=`<div class="love-egg-inner">
+    <div class="love-line">&gt; incoming transmission...</div>
+    <div class="love-line mono" id="love-l1"></div>
+    <div class="love-line mono" id="love-l2"></div>
+    <div class="love-decoded" id="love-decoded">I LOVE YOU</div>
+    <div class="love-sub" id="love-sub">— the willow is always waiting 🌿</div>
+  </div>`;
+  document.body.appendChild(ov);
+  const bin1='01001001 00100000 01101100 01101111 01110110';
+  const bin2='01100101 00100000 01111001 01101111 01110101';
+  const l1=document.getElementById('love-l1'),l2=document.getElementById('love-l2');
+  const typeLine=(el,str,cb)=>{
+    let i=0;
+    const iv=setInterval(()=>{
+      el.textContent=str.slice(0,++i);
+      if(i>=str.length){clearInterval(iv);cb&&cb();}
+    },18);
+  };
+  typeLine(l1,bin1,()=>typeLine(l2,bin2,()=>{
+    setTimeout(()=>{
+      document.getElementById('love-decoded').style.opacity=1;
+      playMagic('restore');
+      setTimeout(()=>{document.getElementById('love-sub').style.opacity=1;},500);
+    },400);
+  }));
+  const close=()=>{ov.remove();document.removeEventListener('keydown',close);};
+  ov.onclick=close;
+  setTimeout(()=>document.addEventListener('keydown',close,{once:true}),800);
+}
+(function watchForSecret(){
+  const phrase='iloveyou';let buf='';
+  document.addEventListener('keydown',e=>{
+    if(e.key.length!==1)return;
+    buf=(buf+e.key.toLowerCase()).slice(-phrase.length);
+    if(buf===phrase){buf='';showLoveEgg();}
+  });
+})();
+
 // ── PREP SCREEN ──
 function showPrep(){
   computeCombo();
@@ -1294,3 +1337,8 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
     navigator.serviceWorker.register('sw.js').catch(()=>{/* offline support just won't be available */});
   });
 }
+
+// ── FOR WHOEVER'S READING THE SOURCE ──
+console.log('%c🌿 UNTZEE WARS','color:#a8e6cf;font-size:20px;font-weight:bold');
+console.log('%c01001001 00100000 01101100 01101111 01110110\n01100101 00100000 01111001 01101111 01110101','color:#5ec9a0;font-family:monospace;font-size:12px');
+console.log('%cyou know what that spells. type it in-game sometime. ✨','color:#c8daea;font-style:italic');
